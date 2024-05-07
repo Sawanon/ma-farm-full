@@ -1,0 +1,1 @@
+type Status = "sccuess" | "idle" | "loading" | "error"

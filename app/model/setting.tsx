@@ -1,0 +1,3 @@
+type Setting = {
+  isSubscribeDustRelay: boolean,
+}

@@ -1,13 +1,16 @@
 "use client"
 import { initializeApp } from "firebase/app";
-import { getDatabase, onValue, ref } from "firebase/database";
+import { getDatabase, onValue, ref, set } from "firebase/database";
 import Image from "next/image";
-import { startSubscribe, unsubscribe } from "./action/firebase";
+import { getIsSubscribe, startSubscribe, unsubscribe } from "./action/firebase";
 import { IoRefreshOutline, IoWater } from "react-icons/io5";
 import { BsStars } from "react-icons/bs";
 import { useEffect, useState } from "react";
 import { FaTemperatureLow } from 'react-icons/fa6'
 import { Switch } from "@nextui-org/switch";
+import { Navbar, NavbarBrand, NavbarContent, NavbarItem } from "@nextui-org/react";
+import { FaHouseMedical } from 'react-icons/fa6'
+import Link from "next/link";
 
 type RealData = {
   humidityCondition: number,
@@ -38,6 +41,7 @@ export default function Home() {
   const [isWater, setIsWater] = useState(false)
   const [humidity, setHumidity] = useState(0)
   const [temperature, setTemperature] = useState("0")
+  const [isSubscribe, setIsSubscribe] = useState(false)
 
   useEffect(() => {
     const realData = ref(database, 'real');
@@ -49,30 +53,44 @@ export default function Home() {
       setHumidity(data.relative_humidity)
       setTemperature(data.temperature)
       // setSpringer(data.springer)
-      setIsWater(data.isWater)
+      // setIsWater(data.isWater)
     });
+    onValue(ref(database, 'test'), (snapshot) => {
+      console.log("🚀 ~ test onValue ~ snapshot:", snapshot.val())
+      setIsWater(snapshot.val().isWater)
+    })
+    const setup = async () => {
+      const isSubscribe = await getIsSubscribe()
+      console.log("🚀 ~ useEffect ~ isSubscribe:", isSubscribe)
+    }
+    setup()
   }, [])
 
-  const handleOnChangeGreenHouse = () => {
-    setIsWater(prev => {
-      const isWater = !prev
+  const handleOnChangeGreenHouse = (isSelected: boolean) => {
+    setIsWater(
+      // const isWater = !prev
       // updateHistoryWater(isWater)
-      return isWater
-    })
+      isSelected
+    )
+    startSubscribe()
+    set(ref(database, 'test/isWater'), isSelected)
     // set(ref(database, 'real/isWater'), !isWater)
   }
 
   return (
-    <div className={`bg-[#F4F7FB] absolute inset-0`}>
+    <div className={`bg-[#F4F7FB]`}>
       <div
-        className={`p-4 bg-red-400`}
+        className={`p-4 bg-blue-400 cursor-pointer`}
         onClick={() => {
-          // if(unsubscribe){
-          //   unsubscribe()
-          // }
+          console.log("start");
+          
+          // startSubscribe()
         }}
       >
-        test
+        start
+      </div>
+      <div className={`cursor-pointer bg-red-200`} onClick={() => {unsubscribe()}}>
+        unsubscribe
       </div>
       <div className={`p-4`}>
         <div className={`flex justify-between`}>
@@ -92,7 +110,7 @@ export default function Home() {
               <BsStars />
             </div>
           </div>
-          <Switch isSelected={isWaterStatus} onValueChange={handleOnChangeGreenHouse} />
+          <Switch isSelected={isWater} onValueChange={handleOnChangeGreenHouse} />
         </div>
         <div className={`mt-4 shadow bg-white w-full text-black text-opacity-80 p-4 rounded-lg`}>
           <div className={`flex justify-between items-center`}>
