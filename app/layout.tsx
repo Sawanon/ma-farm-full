@@ -5,6 +5,7 @@ import { Providers } from "./providers";
 import { Navbar, NavbarBrand, NavbarContent, NavbarItem } from "@nextui-org/react";
 import { FaHouseMedical } from "react-icons/fa6";
 import Link from "next/link";
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 // const inter = Inter({ subsets: ["latin"] });
 
@@ -41,6 +42,7 @@ export default function RootLayout({
             </NavbarContent>
           </Navbar>
           {children}
+          <SpeedInsights />
         </Providers>
       </body>
     </html>
